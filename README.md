@@ -1,1 +1,1 @@
-# STI-tp2-2025
+O meu primeiro projeto no git
