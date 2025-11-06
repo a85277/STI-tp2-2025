@@ -1,0 +1,108 @@
+class Carrinho:
+    def __init__(self):
+        self.itens = {}
+
+    def adicionar(self, produto, quantidade=1):
+        if produto in self.itens:
+            self.itens[produto] += quantidade
+        else:
+            self.itens[produto] = quantidade
+        print(f"{quantidade} '{produto}' adicionado(s) ao carrinho.")
+
+    def remover(self, produto, quantidade=1):
+        if produto not in self.itens:
+            print("Produto não está no carrinho.")
+            return
+        self.itens[produto] -= quantidade
+        if self.itens[produto] <= 0:
+            del self.itens[produto]
+            print(f"'{produto}' removido do carrinho.")
+        else:
+            print(f"{quantidade} '{produto}' removido(s).")
+
+    def mostrar(self):
+        if not self.itens:
+            print("O carrinho está vazio.")
+            return
+        print("\n=== Carrinho Atual ===")
+        for produto, quantidade in self.itens.items():
+            print(f"- {produto}: {quantidade}")
+        print("======================\n")
+
+
+def menu_carrinho():
+    carrinho = Carrinho()
+
+    print("\n=== Carrinho de Compras ===")
+    print("Comandos:")
+    print("  adicionar nome qtd")
+    print("  remover nome qtd")
+    print("  ver")
+    print("  sair (voltar ao menu)\n")
+
+    while True:
+        comando = input("> ").split()
+
+        if not comando:
+            continue
+
+        if comando[0] == "adicionar":
+            produto = comando[1]
+            qtd = int(comando[2]) if len(comando) > 2 else 1
+            carrinho.adicionar(produto, qtd)
+
+        elif comando[0] == "remover":
+            produto = comando[1]
+            qtd = int(comando[2]) if len(comando) > 2 else 1
+            carrinho.remover(produto, qtd)
+
+        elif comando[0] == "ver":
+            carrinho.mostrar()
+
+        elif comando[0] == "sair":
+            print("A voltar ao menu principal...\n")
+            return  # <-- volta ao menu sem fechar o programa
+
+        else:
+            print("Comando inválido.")
+
+
+def main():
+    while True:
+        print("===== MENU PRINCIPAL =====")
+        print("1 - Carrinho de compras")
+        print("2 - Opção 2")
+        print("3 - Opção 3")
+        print("4 - Opção 4")
+        print("5 - Opção 5")
+        print("6 - Opção 6")
+        print("7 - Opção 7")
+        print("8 - Opção 8")
+        print("9 - Opção 9")   
+        print("sair - Sair do programa") 
+        print("==========================")
+
+        escolha = input("Escolhe uma opção: ")
+
+        if escolha == "1":
+            menu_carrinho()
+
+        elif escolha in ["2","3","4","5","6","7","8","9"]:
+            print(f"Opção {escolha} ainda não implementada.")
+            print("Escreve 'sair' para voltar ao menu principal.\n")
+            cmd = input("> ")
+            if cmd == "sair":
+                print()
+                continue
+
+        elif escolha == "sair":
+            print("A terminar o programa...")
+            break  
+
+        else:
+            print("Opção inválida!\n")
+
+
+if __name__ == "__main__":
+    main()
+
