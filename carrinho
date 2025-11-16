@@ -1,6 +1,44 @@
-utilizadores = {}
+# --------------------------
+# Base de dados em memória
+# --------------------------
+utilizadores = {}   # clientes registados (username → password)
 
-class Menu:
+# Trabalhadores fixos com roles
+trabalhadores = {
+    "andre": {"password": "martins", "role": "balcao"},
+    "joao": {"password": "silva", "role": "tecnico"},
+    "afonso": {"password": "martins", "role": "tecnico"}
+}
+
+# Conta especial de administrador
+ADMIN_USER = "admin"
+ADMIN_PASS = "admin"
+
+# Base de dados dos clientes registados pelo trabalhador
+registos_clientes = {}
+
+# --------------------------
+# Lista de produtos
+# --------------------------
+produtos_disponiveis = [
+    "RAM 16GB DDR4",
+    "Monitor HP OMEN 24 23.8",
+    "Mouse Logitech G502",
+    "Samsung TV Crystal UHD 2024",
+    "SSD NVMe 1TB",
+    "Teclado Mecânico Redragon K552",
+    "AirPods Pro 2",
+    "Smartphone Samsung S23",
+    "Laptop ASUS TUF Gaming F15",
+    "Impressora HP DeskJet 4220",
+    "Coluna Bluetooth JBL Flip 6",
+    "Placa Gráfica NVIDIA RTX 4060"
+]
+
+# --------------------------
+# Carrinho
+# --------------------------
+class MenuCarrinho:
     def __init__(self):
         self.itens = {}
 
@@ -9,7 +47,7 @@ class Menu:
             self.itens[produto] += quantidade
         else:
             self.itens[produto] = quantidade
-        print(f"{quantidade} '{produto}' adicionado(s) ao carrinho.")
+        print(f"{quantidade} '{produto}' adicionado(s).")
 
     def remover(self, produto, quantidade=1):
         if produto not in self.itens:
@@ -18,140 +56,264 @@ class Menu:
         self.itens[produto] -= quantidade
         if self.itens[produto] <= 0:
             del self.itens[produto]
-            print(f"'{produto}' removido do carrinho.")
-        else:
-            print(f"{quantidade} '{produto}' removido(s).")
+        print(f"{quantidade} '{produto}' removido(s).")
 
     def mostrar(self):
         if not self.itens:
-            print("O carrinho está vazio.")
+            print("Carrinho vazio.")
             return
-        print("\n=== Carrinho Atual ===")
-        for produto, quantidade in self.itens.items():
-            print(f"- {produto}: {quantidade}")
-        print("======================\n")
+        print("\n=== Carrinho ===")
+        for prod, qtd in self.itens.items():
+            print(f"- {prod}: {qtd}")
+        print("================\n")
 
 
-def menu_carrinho():
-    carrinho = Menu()
-
-    print("\n=== Carrinho de Compras ===")
-    print("Comandos:")
-    print("  adicionar nome qtd")
-    print("  remover nome qtd")
-    print("  ver")
-    print("  sair (voltar ao menu)\n")
-
+# --------------------------
+# Loja de produtos
+# --------------------------
+def menu_loja(carrinho):
     while True:
-        comando = input("> ").split()
+        print("\n======= LOJA =======")
+        print("Escolhe um produto para adicionar ao carrinho:")
+        for i, prod in enumerate(produtos_disponiveis, 1):
+            print(f"{i} - {prod}")
+        print("0 - Voltar")
+        print("====================")
 
-        if not comando:
+        escolha = input("Escolhe: ")
+
+        if escolha == "0":
+            return
+
+        if not escolha.isdigit() or int(escolha) < 1 or int(escolha) > len(produtos_disponiveis):
+            print("Opção inválida!\n")
             continue
 
-        if comando[0] == "adicionar":
-            produto = comando[1]
-            qtd = int(comando[2]) if len(comando) > 2 else 1
-            carrinho.adicionar(produto, qtd)
-
-        elif comando[0] == "remover":
-            produto = comando[1]
-            qtd = int(comando[2]) if len(comando) > 2 else 1
-            carrinho.remover(produto, qtd)
-
-        elif comando[0] == "ver":
-            carrinho.mostrar()
-
-        elif comando[0] == "sair":
-            print("A voltar ao menu principal...\n")
-            return
-
-        else:
-            print("Comando inválido.")
+        produto = produtos_disponiveis[int(escolha) - 1]
+        carrinho.adicionar(produto, 1)
 
 
-def menu_principal():
+# --------------------------
+# Menu Cliente
+# --------------------------
+def menu_principal_cliente():
+    carrinho = MenuCarrinho()
+
     while True:
-        print("===== MENU PRINCIPAL (CLIENTE) =====")
-        print("1 - Carrinho de compras")
-        print("2 - Opção 2")
-        print("3 - Opção 3")
-        print("4 - Opção 4")
-        print("5 - Opção 5")
-        print("6 - Opção 6")
-        print("7 - Opção 7")
-        print("8 - Opção 8")
-        print("9 - Opção 9")
-        print("sair - Voltar ao menu inicial")
-        print("=====================================")
+        print("===== MENU CLIENTE =====")
+        print("1 - Loja (comprar produtos)")
+        print("2 - Ver / editar carrinho")
+        print("sair - Logout")
+        print("=========================")
 
-        escolha = input("Escolhe uma opção: ")
+        escolha = input("Escolhe: ")
 
         if escolha == "1":
-            menu_carrinho()
+            menu_loja(carrinho)
 
-        elif escolha in ["2","3","4","5","6","7","8","9"]:
-            print(f"Opção {escolha} ainda não implementada.\n")
+        elif escolha == "2":
+            carrinho.mostrar()
 
         elif escolha == "sair":
-            print("A voltar ao menu inicial...\n")
+            print("Logout efetuado!\n")
             return
 
         else:
             print("Opção inválida!\n")
 
 
+# --------------------------
+# Funções Trabalhador
+# --------------------------
+def registar_cliente():
+    print("\n=== Registar novo cliente ===")
+    nome = input("Nome do cliente: ")
+
+    if nome in registos_clientes:
+        print("Este cliente já está registado!\n")
+        return
+
+    print("Tipo de serviço:")
+    print("1 - Reparação")
+    print("2 - Encomenda")
+
+    serv = input("Escolhe: ")
+
+    if serv == "1":
+        tipo_servico = "Reparação"
+    elif serv == "2":
+        tipo_servico = "Encomenda"
+    else:
+        print("Opção inválida.")
+        return
+
+    registos_clientes[nome] = {
+        "servico": tipo_servico,
+        "estado": "Em progresso"
+    }
+
+    print(f"Cliente '{nome}' registado com sucesso!\n")
+
+
+def editar_cliente():
+    print("\n=== Editar cliente ===")
+    nome = input("Nome do cliente: ")
+
+    if nome not in registos_clientes:
+        print("Cliente não encontrado.\n")
+        return
+
+    print(f"Cliente: {nome}")
+    print(f"Serviço atual: {registos_clientes[nome]['servico']}")
+    print(f"Estado atual: {registos_clientes[nome]['estado']}")
+    print("\nNovos estados possíveis:")
+    print("1 - Em progresso")
+    print("2 - Quase pronto")
+    print("3 - Terminado")
+
+    esc = input("Escolhe o novo estado: ")
+
+    if esc == "1":
+        registos_clientes[nome]["estado"] = "Em progresso"
+    elif esc == "2":
+        registos_clientes[nome]["estado"] = "Quase pronto"
+    elif esc == "3":
+        registos_clientes[nome]["estado"] = "Terminado"
+    else:
+        print("Opção inválida.")
+        return
+
+    print("Estado atualizado!\n")
+
+
+# --------------------------
+# ADMIN FUNCTIONS
+# --------------------------
+def admin_ver_trabalhadores():
+    print("\n=== Lista de Trabalhadores ===")
+    for nome, info in trabalhadores.items():
+        print(f"- {nome} | password: {info['password']} | role: {info['role']}")
+    print("==============================\n")
+
+
+def admin_adicionar_trabalhador():
+    print("\n=== Adicionar Trabalhador ===")
+    nome = input("Novo username: ")
+    pw = input("Password: ")
+    role = input("Função/Role (ex: balcao, tecnico, gestor): ")
+
+    if nome in trabalhadores:
+        print("Esse trabalhador já existe!\n")
+    else:
+        trabalhadores[nome] = {"password": pw, "role": role}
+        print("Trabalhador adicionado com sucesso!\n")
+
+
+def admin_remover_trabalhador():
+    print("\n=== Remover Trabalhador ===")
+    nome = input("Username: ")
+
+    if nome not in trabalhadores:
+        print("Esse trabalhador não existe.\n")
+        return
+
+    del trabalhadores[nome]
+    print("Trabalhador removido!\n")
+
+
+def admin_editar_password():
+    print("\n=== Editar Password Trabalhador ===")
+    nome = input("Username: ")
+
+    if nome not in trabalhadores:
+        print("Trabalhador não existe.\n")
+        return
+
+    nova = input("Nova password: ")
+    trabalhadores[nome]["password"] = nova
+    print("Password atualizada!\n")
+
+
+def admin_editar_role():
+    print("\n=== Editar Role do Trabalhador ===")
+    nome = input("Username: ")
+
+    if nome not in trabalhadores:
+        print("Trabalhador não existe.\n")
+        return
+
+    nova_role = input("Nova role: ")
+    trabalhadores[nome]["role"] = nova_role
+    print("Role atualizada!\n")
+
+
+def menu_admin():
+    while True:
+        print("===== MENU ADMIN =====")
+        print("1 - Ver trabalhadores")
+        print("2 - Adicionar trabalhador")
+        print("3 - Remover trabalhador")
+        print("4 - Alterar password trabalhador")
+        print("5 - Alterar role trabalhador")
+        print("sair - Logout")
+        print("=======================")
+
+        esc = input("Escolhe: ")
+
+        if esc == "1":
+            admin_ver_trabalhadores()
+        elif esc == "2":
+            admin_adicionar_trabalhador()
+        elif esc == "3":
+            admin_remover_trabalhador()
+        elif esc == "4":
+            admin_editar_password()
+        elif esc == "5":
+            admin_editar_role()
+        elif esc == "sair":
+            print("Logout administrador...\n")
+            return
+        else:
+            print("Opção inválida!\n")
+
+
+# --------------------------
+# Menu Trabalhador
+# --------------------------
 def menu_trabalhador():
     while True:
         print("===== MENU TRABALHADOR =====")
-        print("1 - Opção trabalhador 1")
-        print("2 - Opção trabalhador 2")
-        print("3 - Opção trabalhador 3")
-        print("sair - Voltar ao menu inicial")
+        print("1 - Registar novo cliente")
+        print("2 - Editar cliente")
+        print("sair - Logout")
         print("============================")
 
-        escolha = input("Escolhe uma opção: ")
+        esc = input("Escolhe: ")
 
-        if escolha in ["1", "2", "3"]:
-            print(f"Opção trabalhador {escolha} ainda não implementada.\n")
-
-        elif escolha == "sair":
-            print("A voltar ao menu inicial...\n")
+        if esc == "1":
+            registar_cliente()
+        elif esc == "2":
+            editar_cliente()
+        elif esc == "sair":
+            print("Logout efetuado!\n")
             return
-
         else:
             print("Opção inválida!\n")
 
 
-def escolher_tipo_utilizador():
-    while True:
-        print("===== TIPO DE UTILIZADOR =====")
-        print("1 - É trabalhador?")
-        print("2 - É cliente?")
-        print("==============================")
-
-        escolha = input("Escolhe uma opção: ")
-
-        if escolha == "1":
-            print("A entrar no menu trabalhador...\n")
-            return menu_trabalhador()
-
-        elif escolha == "2":
-            print("A entrar no menu principal...\n")
-            return menu_principal()
-
-        else:
-            print("Opção inválida!\n")
-
-
+# --------------------------
+# Menu Inicial
+# --------------------------
 def menu_inicial():
     while True:
         print("===== MENU INICIAL =====")
-        print("1 - Criar conta")
-        print("2 - Iniciar sessão")
+        print("1 - Criar conta cliente")
+        print("2 - Iniciar sessão cliente")
+        print("3 - Login trabalhador")
         print("sair - Sair do programa")
         print("=========================")
 
-        escolha = input("Escolhe uma opção: ")
+        escolha = input("Escolhe: ")
 
         if escolha == "1":
             username = input("Novo username: ")
@@ -162,7 +324,6 @@ def menu_inicial():
             else:
                 utilizadores[username] = password
                 print("Conta criada com sucesso!\n")
-                return escolher_tipo_utilizador()
 
         elif escolha == "2":
             username = input("Username: ")
@@ -170,7 +331,22 @@ def menu_inicial():
 
             if username in utilizadores and utilizadores[username] == password:
                 print("Login efetuado!\n")
-                return escolher_tipo_utilizador()
+                menu_principal_cliente()
+            else:
+                print("Credenciais incorretas!\n")
+
+        elif escolha == "3":
+            username = input("Trabalhador username: ")
+            password = input("Password: ")
+
+            if username == ADMIN_USER and password == ADMIN_PASS:
+                print("Login ADMIN efetuado!\n")
+                menu_admin()
+
+            elif username in trabalhadores and trabalhadores[username]["password"] == password:
+                print("Login trabalhador efetuado!\n")
+                print(f"Role: {trabalhadores[username]['role']}\n")
+                menu_trabalhador()
             else:
                 print("Credenciais incorretas!\n")
 
@@ -182,6 +358,8 @@ def menu_inicial():
             print("Opção inválida!\n")
 
 
+# --------------------------
+# Início do programa
+# --------------------------
 if __name__ == "__main__":
     menu_inicial()
-
