@@ -3,10 +3,6 @@ import os
 import random
 
 FICHEIRO = "dados.json"
-
-# ============================================================
-# BASE DE DADOS
-# ============================================================
 def carregar_db():
     if not os.path.exists(FICHEIRO):
         dados = {
@@ -26,10 +22,6 @@ def guardar_db(dados):
     with open(FICHEIRO, "w") as f:
         json.dump(dados, f, indent=4)
 
-
-# ============================================================
-# ESTOQUE
-# ============================================================
 def adicionar_produto(nome, preco, qtd, categoria="", marca="", tamanho="", cor="", disponivel=True):
     dados = carregar_db()
     dados["estoque"][nome] = {
@@ -52,9 +44,6 @@ def atualizar_estoque(nome, qtd_delta):
     return False
 
 
-# ============================================================
-# FILTROS DE PRODUTOS
-# ============================================================
 def filtrar_produtos(categoria=None, preco_max=None, marca=None, tamanho=None, cor=None, disponivel=None):
     dados = carregar_db()
     resultados = []
@@ -78,9 +67,6 @@ def filtrar_produtos(categoria=None, preco_max=None, marca=None, tamanho=None, c
     return resultados
 
 
-# ============================================================
-# ANEXAR FOTOS
-# ============================================================
 def anexar_foto(produto, foto_nome):
     dados = carregar_db()
 
@@ -91,9 +77,6 @@ def anexar_foto(produto, foto_nome):
     guardar_db(dados)
 
 
-# ============================================================
-# HISTÓRICO
-# ============================================================
 def registrar_evento(evento):
     dados = carregar_db()
 
@@ -108,9 +91,6 @@ def obter_historico():
     return dados["historico"].get("global", [])
 
 
-# ============================================================
-# CARRINHO + CHECKOUT
-# ============================================================
 def adicionar_carrinho(cliente, produto, qtd=1):
     dados = carregar_db()
 
@@ -141,10 +121,6 @@ def finalizar_compra(cliente, endereco, pagamento):
 
     return True, total
 
-
-# ============================================================
-# AUTENTICAÇÃO 2FA
-# ============================================================
 def gerar_2fa(cliente):
     dados = carregar_db()
     codigo = str(random.randint(100000, 999999))
