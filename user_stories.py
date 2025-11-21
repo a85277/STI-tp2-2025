@@ -1,7 +1,3 @@
-# --------------------------------------
-# USER STORIES (CLIENTES)
-# --------------------------------------
-
 user_stories_clientes = [
     {
         "eu_como": "utilizador",
@@ -39,11 +35,6 @@ user_stories_clientes = [
         "para": "saber quanto vou pagar"
     }
 ]
-
-# --------------------------------------
-# USER STORIES (ADMIN / TRABALHADORES)
-# --------------------------------------
-
 user_stories_admin = [
     {
         "eu_como": "admin",
@@ -71,11 +62,6 @@ user_stories_admin = [
         "para": "manter o cliente informado"
     }
 ]
-
-# --------------------------------------
-# EXPORTAR COMO JSON
-# --------------------------------------
-
 import json
 
 def exportar_json():
